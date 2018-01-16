@@ -37,7 +37,7 @@ def format_path(path):
     return '{}'.format(path).strip('_')
 
 
-def format_response(response: requests.Response):
+def format_response(response):
     content_type = response.headers.get(CONTENT_TYPE, '').lower()
     if JSON_TYPE not in content_type:
         return ApiResponse(response.status_code, response.text)

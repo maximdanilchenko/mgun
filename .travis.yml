@@ -9,5 +9,5 @@ python:
 install:
   - pip install -r dev-requirements.txt
 script:
-  - py.test --cov async_mgun
+  - py.test --cov mgun
 after_success: codecov
