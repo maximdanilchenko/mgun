@@ -34,7 +34,7 @@ ApiResponse = namedtuple('ApiResponse', ['status', 'data'])
 
 
 def format_path(path):
-    return '{}'.format(path).strip('_')
+    return ('%s' % path).strip('_')
 
 
 def format_response(response):
@@ -58,8 +58,7 @@ class UrlBuilder:
     __getitem__ = __getattr__
 
     def __str__(self):
-        return '{}/{}'.format(self.base_url,
-                              "/".join(self.sub_url)) if self.sub_url else self.base_url
+        return '%s/%s' % (self.base_url, "/".join(self.sub_url)) if self.sub_url else self.base_url
 
     __repr__ = __str__
 
@@ -146,4 +145,4 @@ class HttpClientGroup:
         if name in self.urls:
             return self.urls.get(name)
         else:
-            raise NoBaseUrl('{} is not in urls'.format(name))
+            raise NoBaseUrl('%s is not in urls' % name)
