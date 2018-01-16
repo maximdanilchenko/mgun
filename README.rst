@@ -11,4 +11,19 @@ mgun
 
 HTTP REST Client based on requests with dynamic url building
 
+Quickstart
+----------
+
+.. code-block:: python
+
+
+    from mgun import HttpClient
+
+    client = HttpClient('https://httpbin.org')
+
+    resp = client.anything.api.users[23].address.get({'q': '12'})
+
+    print(resp.status)  # 200
+    print(resp.data['url'])  # https://httpbin.org/anything/api/users/23/address?q=12
+
 

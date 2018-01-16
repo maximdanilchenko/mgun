@@ -146,3 +146,9 @@ class HttpClientGroup:
             return self.urls.get(name)
         else:
             raise NoBaseUrl('%s is not in urls' % name)
+
+
+client = HttpClient('https://httpbin.org')
+resp = client.anything.api.users[23].address.get({'q': '12'})
+print(resp.status)
+print(resp.data['url'])
