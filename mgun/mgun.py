@@ -44,6 +44,14 @@ def format_response(response):
     return ApiResponse(response.status_code, response.json())
 
 
+def make_request(session, method, url, content=None, params=None, headers=None):
+    if session:
+        response = session.request(method, url, params=params, json=content, headers=headers)
+    else:
+        response = requests.request(method, url, params=params, json=content, headers=headers)
+    return format_response(response)
+
+
 class UrlBuilder:
     def __init__(self, http_client, url, headers, *args):
         self.base_url = url
@@ -67,19 +75,12 @@ class UrlBuilder:
             raise UnsupportedHttpMethod()
         if method in GET_METHODS and content:
             raise ContentInGet()
-        return self._make_request(method=method,
-                                  url=self.__str__(),
-                                  content=content,
-                                  params=params,
-                                  session=session,
-                                  headers=headers)
-
-    def _make_request(self, session, method, url, content=None, params=None, headers=None):
-        if session:
-            response = session.request(method, url, params=params, json=content, headers=headers)
-        else:
-            response = requests.request(method, url, params=params, json=content, headers=headers)
-        return format_response(response)
+        return make_request(method=method,
+                            url=self.__str__(),
+                            content=content,
+                            params=params,
+                            session=session,
+                            headers=headers)
 
     def get(self, params=None, **kwargs):
         return self.request(method=METHOD_GET,
@@ -146,9 +147,3 @@ class HttpClientGroup:
             return self.urls.get(name)
         else:
             raise NoBaseUrl('%s is not in urls' % name)
-
-
-client = HttpClient('https://httpbin.org')
-resp = client.anything.api.users[23].address.get({'q': '12'})
-print(resp.status)
-print(resp.data['url'])
