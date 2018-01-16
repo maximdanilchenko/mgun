@@ -11,6 +11,13 @@ mgun
 
 HTTP REST Client based on requests with dynamic url building
 
+Install
+-------
+
+::
+
+    pip install mgun
+
 Quickstart
 ----------
 
