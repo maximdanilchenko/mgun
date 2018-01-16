@@ -140,8 +140,7 @@ class HttpClient:
 
 class HttpClientGroup:
     def __init__(self, *rules):
-        self.urls = {rule[0]: HttpClient(rule[1], dict(rule[2:]))
-                     for rule in rules}
+        self.urls = dict((rule[0], HttpClient(rule[1], dict(rule[2:]))) for rule in rules)
 
     def __getattr__(self, name):
         if name in self.urls:
