@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name='mgun',
-    version='0.1.7',
+    version='0.1.8',
     description='HTTP REST Client based on requests with dynamic url building',
     long_description=read('README.rst'),
     author='Danilchenko Maksim',

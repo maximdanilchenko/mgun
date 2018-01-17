@@ -157,18 +157,3 @@ class HttpClientGroup:
             return self.urls.get(name)
         else:
             raise NoBaseUrl('%s is not in urls' % name)
-
-
-client = HttpClient('https://httpbin.org', headers={'Authorization': '123'})  # headers - optional
-
-resp = client.anything.api.users[23].address.get({'q': '12'})
-
-print(resp.status)  # 200
-print(resp.data['url'])  # https://httpbin.org/anything/api/users/23/address?q=12
-print(resp.data['headers']['Authorization'])  # 123
-
-with client.session() as s:  # also possible: with client.s() as s:
-    resp1 = client.anything.api.users.get({'limit': '10'}, session=s)  # request in this session
-    client.anything.api.users[23].post({'data': [1, 2, 3]}, s=s)  # shorter
-    client.anything.api.users[23].patch({'name': 'alex'}, s)  # more shorter
-
