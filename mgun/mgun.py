@@ -55,7 +55,7 @@ def make_request(session, method, url, content=None, params=None, headers=None):
 class UrlBuilder:
     def __init__(self, http_client, url, headers, *args):
         self.base_url = url
-        self.headers = headers
+        self.headers = headers or {}
         self.http_client = http_client
         self.sub_url = [format_path(arg) for arg in args]
 
@@ -75,6 +75,8 @@ class UrlBuilder:
             raise UnsupportedHttpMethod()
         if method in GET_METHODS and content:
             raise ContentInGet()
+        headers = headers or {}
+        headers.update(self.headers)
         return make_request(method=method,
                             url=self.__str__(),
                             content=content,
