@@ -26,11 +26,12 @@ Quickstart
 
     from mgun import HttpClient
 
-    client = HttpClient('https://httpbin.org')
+    client = HttpClient('https://httpbin.org', headers={'Authorization': '123'})
 
     resp = client.anything.api.users[23].address.get({'q': '12'})
 
     print(resp.status)  # 200
     print(resp.data['url'])  # https://httpbin.org/anything/api/users/23/address?q=12
+    print(resp.data['headers']['Authorization'])  # 123
 
 
