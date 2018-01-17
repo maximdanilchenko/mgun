@@ -70,7 +70,7 @@ class UrlBuilder:
 
     __repr__ = __str__
 
-    def request(self, method, content=None, params=None, session=None, headers=None):
+    def request(self, method, content=None, params=None, session=None, headers=None, s=None):
         if method not in ALL_METHODS:
             raise UnsupportedHttpMethod()
         if method in GET_METHODS and content:
@@ -81,32 +81,37 @@ class UrlBuilder:
                             url=self.__str__(),
                             content=content,
                             params=params,
-                            session=session,
+                            session=session or s,
                             headers=headers)
 
-    def get(self, params=None, **kwargs):
+    def get(self, params=None, session=None, **kwargs):
         return self.request(method=METHOD_GET,
                             params=params,
+                            session=session,
                             **kwargs)
 
-    def delete(self, params=None, **kwargs):
+    def delete(self, params=None, session=None, **kwargs):
         return self.request(method=METHOD_DELETE,
                             params=params,
+                            session=session,
                             **kwargs)
 
-    def post(self, content=None, **kwargs):
+    def post(self, content=None, session=None, **kwargs):
         return self.request(method=METHOD_POST,
                             content=content,
+                            session=session,
                             **kwargs)
 
-    def put(self, content=None, **kwargs):
+    def put(self, content=None, session=None, **kwargs):
         return self.request(method=METHOD_PUT,
                             content=content,
+                            session=session,
                             **kwargs)
 
-    def patch(self, content=None, **kwargs):
+    def patch(self, content=None, session=None, **kwargs):
         return self.request(method=METHOD_PATCH,
                             content=content,
+                            session=session,
                             **kwargs)
 
 
@@ -127,7 +132,10 @@ class HttpClient:
         self.url = url
         self.headers = headers
 
-    s = session = requests.session
+    def session(self):
+        return requests.session()
+
+    s = session
 
     def __str__(self):
         return self.url
@@ -149,3 +157,18 @@ class HttpClientGroup:
             return self.urls.get(name)
         else:
             raise NoBaseUrl('%s is not in urls' % name)
+
+
+client = HttpClient('https://httpbin.org', headers={'Authorization': '123'})  # headers - optional
+
+resp = client.anything.api.users[23].address.get({'q': '12'})
+
+print(resp.status)  # 200
+print(resp.data['url'])  # https://httpbin.org/anything/api/users/23/address?q=12
+print(resp.data['headers']['Authorization'])  # 123
+
+with client.session() as s:  # also possible: with client.s() as s:
+    resp1 = client.anything.api.users.get({'limit': '10'}, session=s)  # request in this session
+    client.anything.api.users[23].post({'data': [1, 2, 3]}, s=s)  # shorter
+    client.anything.api.users[23].patch({'name': 'alex'}, s)  # more shorter
+

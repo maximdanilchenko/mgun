@@ -9,7 +9,7 @@ mgun
 .. image:: https://codecov.io/gh/maximdanilchenko/mgun/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/maximdanilchenko/mgun
 
-HTTP REST Client based on requests with dynamic url building
+HTTP REST Json Client based on requests with dynamic url building
 
 Install
 -------
@@ -26,7 +26,7 @@ Quickstart
 
     from mgun import HttpClient
 
-    client = HttpClient('https://httpbin.org', headers={'Authorization': '123'})
+    client = HttpClient('https://httpbin.org', headers={'Authorization': '123'})  # headers - optional
 
     resp = client.anything.api.users[23].address.get({'q': '12'})
 
@@ -34,4 +34,14 @@ Quickstart
     print(resp.data['url'])  # https://httpbin.org/anything/api/users/23/address?q=12
     print(resp.data['headers']['Authorization'])  # 123
 
+
+Queries in one session:
+----------
+
+.. code-block:: python
+
+    with client.session() as s:  # also possible: with client.s() as s:
+        resp1 = client.anything.api.users.get({'limit': '10'}, session=s)  # request in this session
+        client.anything.api.users[23].post({'data': [1, 2, 3]}, s)  # shorter
+        client.anything.api.users[23].patch({'name': 'alex'}, s)
 
