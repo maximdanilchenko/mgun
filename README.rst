@@ -35,10 +35,11 @@ Quickstart
     print(resp.data['headers']['Authorization'])  # 123
 
 
-Queries in one session:
-----------
+Queries in one session
+----------------------
 
 .. code-block:: python
+
 
     with client.session() as s:  # also possible: with client.s() as s:
         resp1 = client.anything.api.users.get({'limit': '10'}, session=s)  # request in this session
