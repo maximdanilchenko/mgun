@@ -42,7 +42,7 @@ Queries in one session
 
 
     with client.session() as s:  # also possible: with client.s() as s:
-        resp1 = client.anything.api.users.get({'limit': '10'}, session=s)  # request in this session
-        client.anything.api.users[23].post({'data': [1, 2, 3]}, s)  # shorter
-        client.anything.api.users[23].patch({'name': 'alex'}, s)
+        resp = s.anything.api.users.get({'limit': '10'})  # request in this session
+        s.anything.api.users[23].post({'data': [1, 2, 3]})
+        s.anything.api.users[23].patch({'name': 'alex'})
 

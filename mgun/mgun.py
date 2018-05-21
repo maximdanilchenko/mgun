@@ -53,65 +53,61 @@ def make_request(session, method, url, content=None, params=None, headers=None):
 
 
 class UrlBuilder:
-    def __init__(self, http_client, url, headers, *args):
-        self.base_url = url
-        self.headers = headers or {}
-        self.http_client = http_client
-        self.sub_url = [format_path(arg) for arg in args]
+    def __init__(self, http_client, url, headers, session, *args):
+        self._base_url = url
+        self._headers = headers or {}
+        self._http_client = http_client
+        self._sub_url = [format_path(arg) for arg in args]
+        self._session = session
 
     def __getattr__(self, item):
-        self.sub_url.append(format_path(item))
+        self._sub_url.append(format_path(item))
         return self
 
     __getitem__ = __getattr__
 
     def __str__(self):
-        return '%s/%s' % (self.base_url, "/".join(self.sub_url)) if self.sub_url else self.base_url
+        return '%s/%s' % (self._base_url, "/".join(self._sub_url)) if self._sub_url else self._base_url
 
     __repr__ = __str__
 
-    def request(self, method, content=None, params=None, session=None, headers=None, s=None):
+    def request(self, method, content=None, params=None, headers=None):
         if method not in ALL_METHODS:
             raise UnsupportedHttpMethod()
         if method in GET_METHODS and content:
             raise ContentInGet()
         headers = headers or {}
-        headers.update(self.headers)
+        headers.update(self._headers)
         return make_request(method=method,
                             url=self.__str__(),
                             content=content,
                             params=params,
-                            session=session or s,
+                            session=self._session,
                             headers=headers)
 
-    def get(self, params=None, session=None, **kwargs):
+    def get(self, params=None, **kwargs):
         return self.request(method=METHOD_GET,
                             params=params,
-                            session=session,
                             **kwargs)
 
-    def delete(self, params=None, session=None, **kwargs):
+    def delete(self, params=None, **kwargs):
         return self.request(method=METHOD_DELETE,
                             params=params,
-                            session=session,
                             **kwargs)
 
-    def post(self, content=None, session=None, **kwargs):
+    def post(self, content=None, **kwargs):
         return self.request(method=METHOD_POST,
                             content=content,
-                            session=session,
                             **kwargs)
 
-    def put(self, content=None, session=None, **kwargs):
+    def put(self, content=None, **kwargs):
         return self.request(method=METHOD_PUT,
                             content=content,
-                            session=session,
                             **kwargs)
 
-    def patch(self, content=None, session=None, **kwargs):
+    def patch(self, content=None, **kwargs):
         return self.request(method=METHOD_PATCH,
                             content=content,
-                            session=session,
                             **kwargs)
 
 
@@ -131,9 +127,10 @@ class HttpClient:
     def __init__(self, url, headers=None):
         self.url = url
         self.headers = headers
+        self.active_session = None
 
     def session(self):
-        return requests.session()
+        return self
 
     s = session
 
@@ -142,10 +139,18 @@ class HttpClient:
 
     def __getattr__(self, name):
         if name in ALL_METHODS_LOWER:
-            return getattr(UrlBuilder(self, self.url, self.headers), name)
-        return UrlBuilder(self, self.url, self.headers, name)
+            return getattr(UrlBuilder(self, self.url, self.headers, self.active_session), name)
+        return UrlBuilder(self, self.url, self.headers, self.active_session, name)
 
     __getitem__ = __getattr__
+
+    def __enter__(self):
+        self.active_session = requests.Session()
+        return self
+
+    def __exit__(self, *exc):
+        if self.active_session:
+            self.active_session.close()
 
 
 class HttpClientGroup:

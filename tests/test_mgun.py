@@ -50,3 +50,13 @@ class TestHttpRequests:
         assert response.status == 200
         assert json.loads(response.data['data']) == data
         print(response)
+
+    def test_session(self, client):
+        with client.session() as s:
+            response = s.get_.get()
+        assert response.status == 200
+
+    def test_s(self, client):
+        with client.s() as s:
+            response = s.get_.get()
+        assert response.status == 200
