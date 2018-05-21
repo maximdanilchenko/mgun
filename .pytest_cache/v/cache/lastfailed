@@ -1,5 +1,0 @@
-{
-  "tests/test_mgun.py::TestHttpRequests::()::test_session_is_one[first]": true,
-  "tests/test_mgun.py::TestHttpRequests::()::test_session_is_one[one]": true,
-  "tests/test_mgun.py::TestHttpRequests::()::test_session_is_one[second]": true
-}
