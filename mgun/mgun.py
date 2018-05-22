@@ -151,6 +151,7 @@ class HttpClient:
     def __exit__(self, *exc):
         if self.active_session:
             self.active_session.close()
+            self.active_session = None
 
 
 class HttpClientGroup:
