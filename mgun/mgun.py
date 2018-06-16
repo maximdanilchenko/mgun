@@ -10,16 +10,16 @@ METHOD_PATCH = 'PATCH'
 CONTENT_TYPE = 'CONTENT-TYPE'
 JSON_TYPE = 'application/json'
 
-GET_METHODS = [METHOD_GET,
-               METHOD_DELETE]
+GET_METHODS = {METHOD_GET,
+               METHOD_DELETE}
 
-POST_METHODS = [METHOD_POST,
+POST_METHODS = {METHOD_POST,
                 METHOD_PUT,
-                METHOD_PATCH]
+                METHOD_PATCH}
 
-ALL_METHODS = GET_METHODS + POST_METHODS
+ALL_METHODS = GET_METHODS | POST_METHODS
 
-ALL_METHODS_LOWER = [method.lower() for method in ALL_METHODS]
+ALL_METHODS_LOWER = {method.lower() for method in ALL_METHODS}
 
 __all__ = ['HttpClient',
            'HttpClientGroup',
@@ -45,10 +45,10 @@ def format_response(response):
 
 
 def make_request(session, method, url, content=None, params=None, headers=None):
-    if session:
-        response = session.request(method, url, params=params, json=content, headers=headers)
-    else:
-        response = requests.request(method, url, params=params, json=content, headers=headers)
+    response = (session or requests).request(method, url,
+                                             params=params,
+                                             json=content,
+                                             headers=headers)
     return format_response(response)
 
 
@@ -67,7 +67,9 @@ class UrlBuilder:
     __getitem__ = __getattr__
 
     def __str__(self):
-        return '%s/%s' % (self._base_url, "/".join(self._sub_url)) if self._sub_url else self._base_url
+        return '%s/%s' % (self._base_url,
+                          "/".join(self._sub_url)
+                          ) if self._sub_url else self._base_url
 
     __repr__ = __str__
 
@@ -139,8 +141,15 @@ class HttpClient:
 
     def __getattr__(self, name):
         if name in ALL_METHODS_LOWER:
-            return getattr(UrlBuilder(self, self.url, self.headers, self.active_session), name)
-        return UrlBuilder(self, self.url, self.headers, self.active_session, name)
+            return getattr(UrlBuilder(self,
+                                      self.url,
+                                      self.headers,
+                                      self.active_session), name)
+        return UrlBuilder(self,
+                          self.url,
+                          self.headers,
+                          self.active_session,
+                          name)
 
     __getitem__ = __getattr__
 
@@ -156,7 +165,8 @@ class HttpClient:
 
 class HttpClientGroup:
     def __init__(self, *rules):
-        self.urls = {rule[0]: HttpClient(rule[1], dict(rule[2:])) for rule in rules}
+        self.urls = {rule[0]: HttpClient(rule[1], dict(rule[2:]))
+                     for rule in rules}
 
     def __getattr__(self, name):
         if name in self.urls:
